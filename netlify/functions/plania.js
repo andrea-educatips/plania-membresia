@@ -1,4 +1,4 @@
-const SUPABASE_URL = "https://ameezpthwyatnfprpkbn.supabase.co";
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET_KEY;
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
