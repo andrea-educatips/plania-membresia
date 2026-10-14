@@ -97,6 +97,30 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 .nee-sesion-blk{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px dashed #f0a0a0}
 .nee-sesion-blk:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
 .nee-sesion-lbl{font-size:12px;font-weight:600;color:var(--red);margin-bottom:.5rem}
+/* FORMATO SELECTOR */
+.fmt-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:560px){.fmt-grid{grid-template-columns:1fr}}
+.fmt-btn{padding:12px 8px;border:2px solid var(--gray3);border-radius:var(--radius-sm);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;text-align:center;transition:all .2s;line-height:1.4}
+.fmt-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-lt)}
+.fmt-btn.on{border-color:var(--teal);color:var(--teal);background:var(--teal-lt);font-weight:600}
+.fmt-sub{font-size:10px;display:block;margin-top:2px;color:var(--text3);font-weight:400}
+.fmt-btn.on .fmt-sub{color:var(--teal)}
+.upload-wrap{display:none;margin-top:.9rem}
+.upload-wrap.show{display:block}
+.upload-area{border:2px dashed var(--gray3);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--white)}
+.upload-area:hover,.upload-area.drag{border-color:var(--teal);background:var(--teal-lt)}
+.upload-area input[type=file]{display:none}
+.upload-lbl{font-size:13px;color:var(--text3);line-height:1.6}
+.upload-lbl strong{color:var(--teal)}
+.upload-ok{font-size:12px;color:var(--teal);font-weight:600;margin-top:6px;display:none}
+.upload-ok.show{display:block}
+/* IDIOMA SELECTOR */
+.idioma-wrap{display:none;margin-top:.9rem;padding:.9rem;background:var(--blue-lt);border:1.5px solid var(--blue);border-radius:var(--radius-sm)}
+.idioma-wrap.show{display:block}
+.idioma-lbl{font-size:12px;font-weight:600;color:var(--blue);margin-bottom:.6rem}
+.idioma-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.idioma-btn{padding:9px 6px;border:1.5px solid var(--blue);border-radius:var(--radius-sm);background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--blue);cursor:pointer;text-align:center;transition:all .2s}
+.idioma-btn.on{background:var(--blue);color:white;font-weight:600}
 /* GENERAR */
 .btn-gen{width:100%;padding:15px;background:var(--green);color:white;border:none;border-radius:var(--radius);font-family:'Playfair Display',serif;font-size:18px;cursor:pointer;transition:background .2s;margin-top:.4rem}
 .btn-gen:hover{background:var(--green-dk)}
@@ -200,13 +224,14 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 <div class="hero">
   <p class="hero-ey">Planificador curricular · Membresía docente</p>
   <h1>Genera tu planificación<br>con inteligencia artificial</h1>
-  <p>Planificación completa con ERCA o ACC, DUA integrado, adaptaciones NEE y rúbrica. Por sesión, descargable en Word.</p>
+  <p>Planificación completa con ERCA o ACC, DUA integrado, adaptaciones NEE y rúbrica. Elige Tabla A, Tabla B (CAI) o tu formato institucional.</p>
   <div class="hero-tags">
     <span class="htag">Por sesión</span>
     <span class="htag">ERCA · ACC</span>
     <span class="htag">DUA integrado</span>
     <span class="htag">NEE</span>
-    <span class="htag">Descarga Word</span>
+    <span class="htag">Tabla A · Tabla B</span>
+    <span class="htag">Formato propio</span>
   </div>
 </div>
 
@@ -242,7 +267,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
       </div>
       <div class="field">
         <label>Asignatura <span class="req">*</span></label>
-        <select id="asignatura">
+        <select id="asignatura" onchange="checkIdiomaVisible()">
           <option value="">Selecciona la asignatura</option>
           <option>Lengua y Literatura</option><option>Matemática</option>
           <option>Ciencias Naturales</option><option>Estudios Sociales</option>
@@ -302,6 +327,36 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   </div>
 </div>
 
+<!-- FORMATO DE SALIDA -->
+<div class="card">
+  <div class="card-hdr"><div class="card-icon ic-b">📄</div><div><div class="card-title">Formato de salida</div><div class="card-sub">Elige cómo deseas recibir tu planificación</div></div></div>
+  <div class="card-body">
+    <div class="fmt-grid">
+      <button class="fmt-btn on" data-fmt="A" onclick="selFormato(this)">📊 Tabla A<span class="fmt-sub">ERCA/ACC + DUA · Formato PLANIA</span></button>
+      <button class="fmt-btn" data-fmt="B" onclick="selFormato(this)">📋 Tabla B<span class="fmt-sub">CAI · Formato muy usado en Ecuador</span></button>
+      <button class="fmt-btn" data-fmt="institucional" onclick="selFormato(this)">🏫 Formato institucional<span class="fmt-sub">Sube tu propio formato Word</span></button>
+    </div>
+    <div class="upload-wrap" id="upload-wrap">
+      <label style="font-size:12px;font-weight:600;color:var(--text2);display:block;margin-bottom:6px">Sube el formato Word de tu institución <span class="req">*</span></label>
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('formato-file').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+        <input type="file" id="formato-file" accept=".docx,.doc" onchange="handleFileSelect(this)">
+        <div class="upload-lbl">📎 <strong>Haz clic para subir</strong> o arrastra aquí<br>Formato Word (.docx) · PLANIA rellenará tu plantilla</div>
+        <div class="upload-ok" id="upload-ok">✅ Archivo cargado</div>
+      </div>
+      <p class="hint" style="margin-top:6px">El archivo no se almacena permanentemente. Se usa solo para esta generación.</p>
+    </div>
+    <!-- IDIOMA (solo visible cuando asignatura = Inglés) -->
+    <div class="idioma-wrap" id="idioma-wrap">
+      <div class="idioma-lbl">🌐 Idioma de la planificación (Inglés)</div>
+      <div class="idioma-grid">
+        <button class="idioma-btn on" data-idioma="español" onclick="selIdioma(this)">🇪🇸 Solo español</button>
+        <button class="idioma-btn" data-idioma="bilingue" onclick="selIdioma(this)">🇪🇸🇬🇧 Bilingüe</button>
+        <button class="idioma-btn" data-idioma="ingles" onclick="selIdioma(this)">🇬🇧 Solo inglés</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- GENERAR -->
 <div class="card">
   <div class="card-body">
@@ -336,6 +391,56 @@ const COMPETENCIAS=[{v:'comunicacional',l:'💬 Comunicacional'},{v:'matemática
 const INSERCIONES=[{v:'cívica, ética e integridad',l:'⚖️ Cívica, ética e integridad'},{v:'educación socioemocional',l:'🧠 Socioemocional'},{v:'educación financiera',l:'💰 Financiera'},{v:'seguridad vial',l:'🚦 Seguridad vial'},{v:'desarrollo sostenible',l:'🌱 Sostenible'},{v:'seguridad integral',l:'🛡️ Integral'}];
 
 let numSesiones=1, neeMode='ninguna', neeCount=0;
+let formatoSalida='A', idiomaSeleccionado='español', formatoFile=null;
+
+// ── FORMATO ──
+function selFormato(btn){
+  document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  formatoSalida=btn.dataset.fmt;
+  const uw=document.getElementById('upload-wrap');
+  uw.classList.toggle('show',formatoSalida==='institucional');
+}
+
+function selIdioma(btn){
+  document.querySelectorAll('.idioma-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  idiomaSeleccionado=btn.dataset.idioma;
+}
+
+function handleFileSelect(input){
+  if(input.files[0])setFormatoFile(input.files[0]);
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-area').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f&&(f.name.endsWith('.docx')||f.name.endsWith('.doc')))setFormatoFile(f);
+  else alert('Por favor sube un archivo Word (.docx)');
+}
+
+function setFormatoFile(f){
+  formatoFile=f;
+  const ok=document.getElementById('upload-ok');
+  ok.textContent=`✅ ${f.name}`;
+  ok.classList.add('show');
+}
+
+// ── IDIOMA VISIBLE ──
+function checkIdiomaVisible(){
+  const asig=document.getElementById('asignatura').value;
+  const iw=document.getElementById('idioma-wrap');
+  if(asig==='Inglés'){
+    iw.classList.add('show');
+  }else{
+    iw.classList.remove('show');
+    // reset al español si cambia de asignatura
+    document.querySelectorAll('.idioma-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelector('.idioma-btn[data-idioma="español"]')?.classList.add('on');
+    idiomaSeleccionado='español';
+  }
+}
 
 // ── CRÉDITOS ──
 async function verificarCreditos(){
@@ -602,6 +707,55 @@ function renderNEEResult(adaptaciones){
     </table></div>`;
 }
 
+// ── TABLA B (CAI) ──
+function renderTablaB(plan, sesData, secuencia){
+  const etapas=secuencia==='ACC'?ETAPAS_ACC:ETAPAS_ERCA;
+  // Construir estrategia metodológica completa (etapas + DUA)
+  let estrategiaHtml='';
+  etapas.forEach(([nombre,sub,tc])=>{
+    const key=nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const d=plan.etapas?.[key]||plan.etapas?.[nombre.toLowerCase()]||{};
+    estrategiaHtml+=`<div class="eblk">
+      <span class="etag ${tc}">⬤ ${nombre.toUpperCase()} — ${sub}</span>
+      <div class="enombre">${d.nombre||''}</div>
+      <div class="edesc">${d.actividad||''}</div>
+      ${d.insercion?`<div class="ins-note">🔗 ${d.insercion}</div>`:''}
+    </div>`;
+  });
+
+  // DUA declarativo en cabecera (como en el formato CAI original)
+  const duaBlock=`<div style="margin-top:8px;padding:8px;background:#f8f0ff;border-radius:4px;font-size:11px">
+    <strong style="color:var(--purple)">DUA — Diseño Universal para el Aprendizaje</strong><br>
+    <span style="color:var(--purple-dk)">🟣 Representación:</span> ${plan.etapas?.[etapas[0][0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')]?.representacion||''}<br>
+    <span style="color:var(--blue)">🔵 Acción y expresión:</span> ${plan.etapas?.[etapas[0][0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')]?.accion||''}<br>
+    <span style="color:var(--green-dk)">🟢 Implicación:</span> ${plan.etapas?.[etapas[0][0].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')]?.implicacion||''}
+  </div>`;
+
+  return`<div class="tabla-outer"><table class="tabla-plan">
+    <tr><td colspan="5" class="th-enc">
+      <div class="enc-inner">
+        <div><span class="enc-lbl">Tema</span><span class="enc-val">${plan.tema||sesData.tema||''}</span></div>
+        <div><span class="enc-lbl">Objetivo</span><span class="enc-val">${plan.objetivo||''}</span></div>
+        <div><span class="enc-lbl">Ejes transversales</span><span class="enc-val">${plan.ejes_transversales||''}</span></div>
+      </div>
+    </td></tr>
+    <tr>
+      <th class="th-d" style="width:160px">Destreza con criterio de desempeño</th>
+      <th class="th-i" style="width:150px">Indicador de evaluación</th>
+      <th class="th-a">Estrategia metodológica activa para la enseñanza y el aprendizaje</th>
+      <th class="th-r" style="width:130px">Recursos</th>
+      <th class="th-e" style="width:140px">Evaluación</th>
+    </tr>
+    <tr>
+      <td style="vertical-align:top">${sesData.destreza}</td>
+      <td style="vertical-align:top">${sesData.indicador}</td>
+      <td>${estrategiaHtml}${duaBlock}</td>
+      <td style="vertical-align:top">${(plan.recursos||'').replace(/,/g,'<br>')}</td>
+      <td style="vertical-align:top"><strong>Técnica:</strong> ${plan.tecnica||''}<br><br><strong>Instrumento:</strong> ${plan.instrumento||''}</td>
+    </tr>
+  </table></div>`;
+}
+
 // ── GENERAR ──
 async function generar(){
   const email=document.getElementById('user-email').value.trim();
@@ -611,6 +765,7 @@ async function generar(){
   const grado=document.getElementById('grado').value.trim();
   const secuencia=getSeq();
   if(!subnivel||!asignatura||!grado){alert('Completa subnivel, asignatura y grado.');return;}
+  if(formatoSalida==='institucional'&&!formatoFile){alert('Debes subir tu formato institucional Word para continuar.');return;}
 
   const sesiones=[];
   for(let i=1;i<=numSesiones;i++){
@@ -629,10 +784,11 @@ async function generar(){
   setStep(2,'Consultando a la IA...');
 
   try{
+    const idioma=(asignatura==='Inglés')?idiomaSeleccionado:'español';
     const resp=await fetch('/.netlify/functions/plania',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email,subnivel,asignatura,grado,secuencia,sesiones})
+      body:JSON.stringify({email,subnivel,asignatura,grado,secuencia,sesiones,idioma,formato:formatoSalida})
     });
     const data=await resp.json();
     if(data.sin_creditos){
@@ -652,8 +808,18 @@ async function generar(){
     const container=document.getElementById('resultados-container');
     container.innerHTML='';
 
+    // Guardar datos para Word con formato correcto
+    window._planiaResultados=data.resultados;
+    window._planiaSesiones=sesiones;
+    window._planiaSecuencia=secuencia;
+    window._planiaFormato=formatoSalida;
+    window._planiaCtx={subnivel,asignatura,grado};
+
     data.resultados.forEach((res,idx)=>{
       const sesData=sesiones[idx];
+      const tablaHtml=formatoSalida==='B'
+        ?renderTablaB(res.plan,sesData,secuencia)
+        :renderTabla(res.plan,sesData,secuencia);
       const div=document.createElement('div');
       div.className='sesion-resultado card';
       div.innerHTML=`
@@ -664,10 +830,10 @@ async function generar(){
             <button class="btn-act" onclick="descargarWord(${idx})">📥 Word</button>
           </div>
         </div>
-        <div id="tabla-${idx}">${renderTabla(res.plan,sesData,secuencia)}</div>
+        <div id="tabla-${idx}">${tablaHtml}</div>
         <div id="rubrica-${idx}">${renderRubrica(res.plan.rubrica)}</div>
         <div id="nee-res-${idx}">${renderNEEResult(res.plan.adaptaciones_nee)}</div>
-        <div class="brand-ft"><p>Sesión ${idx+1} generada por <strong>PLANIA · Andrea Educatips</strong> · andrea-educatips.com</p></div>`;
+        <div class="brand-ft"><p>Sesión ${idx+1} · Formato ${formatoSalida==='B'?'Tabla B (CAI)':formatoSalida==='institucional'?'Institucional':'Tabla A'} · generado por <strong>PLANIA · Andrea Educatips</strong> · andrea-educatips.com</p></div>`;
       container.appendChild(div);
     });
 
@@ -701,14 +867,23 @@ function descargarWord(idx){
   const tablaH=document.getElementById(`tabla-${idx}`).innerHTML;
   const rubH=document.getElementById(`rubrica-${idx}`).innerHTML;
   const neeH=document.getElementById(`nee-res-${idx}`).innerHTML;
-  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'><title>${tit}</title>
-  <style>body{font-family:Arial;font-size:10pt}table{width:100%;border-collapse:collapse;font-size:9pt}th,td{border:1px solid #999;padding:5pt 7pt;vertical-align:top}.th-enc{background:#1a1a16;color:white;text-align:center}.th-d,.th-a{background:#008000;color:white;font-weight:bold}.th-i{background:#951abe;color:white;font-weight:bold}.th-r{background:#0f6e56;color:white;font-weight:bold}.th-e{background:#b8860b;color:white;font-weight:bold}.etag{font-size:8pt;font-weight:bold;padding:1pt 4pt}.t0{background:#e8f5e8;color:#005700}.t1{background:#f3e8fa;color:#6a0f8a}.t2{background:#e6efff;color:#0000cc}.t3{background:#fef8e7;color:#b8860b}.dr{background:#f3e8fa;color:#6a0f8a;font-size:8pt;padding:2pt 4pt}.da{background:#e6efff;color:#0000cc;font-size:8pt;padding:2pt 4pt}.dg{background:#e8f5e8;color:#005700;font-size:8pt;padding:2pt 4pt}.rubrica-table th{background:#008000;color:white}.nv-ex{background:#e8f5e8;color:#005700}.nv-sa{background:#fef8e7;color:#7a5000}.nee-res-table th{background:#8a0000;color:white}.nee-row-bg{background:#fff8f8}.dest-mod{background:#fde8e8;color:#7a0000;font-size:8pt;padding:2pt 4pt}h1{color:#008000;font-size:14pt}</style></head>
-  <body><h1>${tit}</h1>${tablaH}${rubH}${neeH}<p style="font-size:8pt;color:#888;margin-top:10pt">Generado por PLANIA · Andrea Educatips · andrea-educatips.com</p></body></html>`;
-  const blob=new Blob(['\ufeff',html],{type:'application/msword'});
+  const fmtActual=window._planiaFormato||'A';
+  const ctx=window._planiaCtx||{};
+  const estilosBase='body{font-family:Arial;font-size:10pt}table{width:100%;border-collapse:collapse;font-size:9pt}th,td{border:1px solid #999;padding:5pt 7pt;vertical-align:top}.th-enc{background:#1a1a16;color:white;text-align:center}.th-d,.th-a{background:#008000;color:white;font-weight:bold}.th-i{background:#951abe;color:white;font-weight:bold}.th-r{background:#0f6e56;color:white;font-weight:bold}.th-e{background:#b8860b;color:white;font-weight:bold}.etag{font-size:8pt;font-weight:bold;padding:1pt 4pt}.t0{background:#e8f5e8;color:#005700}.t1{background:#f3e8fa;color:#6a0f8a}.t2{background:#e6efff;color:#0000cc}.t3{background:#fef8e7;color:#b8860b}.dr{background:#f3e8fa;color:#6a0f8a;font-size:8pt;padding:2pt 4pt}.da{background:#e6efff;color:#0000cc;font-size:8pt;padding:2pt 4pt}.dg{background:#e8f5e8;color:#005700;font-size:8pt;padding:2pt 4pt}.rubrica-table th{background:#008000;color:white}.nv-ex{background:#e8f5e8;color:#005700}.nv-sa{background:#fef8e7;color:#7a5000}.nee-res-table th{background:#8a0000;color:white}.nee-row-bg{background:#fff8f8}.dest-mod{background:#fde8e8;color:#7a0000;font-size:8pt;padding:2pt 4pt}h1{color:#008000;font-size:14pt}.ins-note{background:#f9f0fc;border-left:2pt solid #951abe;padding:2pt 5pt;font-size:8pt;color:#6a0f8a}.enombre{font-weight:bold;font-size:10pt}.edesc{font-size:9pt}.eblk{margin-bottom:8pt;padding-bottom:8pt;border-bottom:1pt dashed #ccc}';
+  let encabezado='';
+  if(fmtActual==='B'){
+    encabezado='<h2 style="background:#005c00;color:white;padding:6pt 10pt;font-size:12pt">PLANIFICACIÓN CURRICULAR — TABLA B (CAI)</h2><table style="margin-bottom:10pt;font-size:9pt;border:1pt solid #ccc"><tr><td style="padding:4pt 8pt"><strong>Asignatura:</strong> '+ctx.asignatura+'</td><td><strong>Grado:</strong> '+ctx.grado+'</td><td><strong>Subnivel:</strong> '+ctx.subnivel+'</td></tr></table>';
+  }else{
+    encabezado='<h1>'+tit+'</h1>';
+  }
+  const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>'+tit+'</title><style>'+estilosBase+'</style></head><body>'+encabezado+tablaH+rubH+neeH+'<p style="font-size:8pt;color:#888;margin-top:10pt">Generado por PLANIA · Andrea Educatips · andrea-educatips.com</p></body></html>';
+  const blob=new Blob(['﻿',html],{type:'application/msword'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`PLANIA-sesion-${idx+1}.doc`;document.body.appendChild(a);a.click();
+  a.download='PLANIA-'+(fmtActual==='B'?'tablaB':'tablaA')+'-sesion-'+(idx+1)+'.doc';
+  document.body.appendChild(a);a.click();
   setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
 }
+
 
 function nueva(){
   document.querySelectorAll('.main > .card').forEach(c=>c.style.display='block');

@@ -27,7 +27,7 @@ async function descontarCredito(email,creditosActuales){
   });
 }
 
-async function generarSesion(sesion, subnivel, asignatura, grado, secuencia){
+async function generarSesion(sesion, subnivel, asignatura, grado, secuencia, idioma){
   const etapas=secuencia==="ACC"
     ?[["Anticipación","activación de conocimientos previos"],["Construcción","construcción del conocimiento"],["Consolidación","transferencia y aplicación"]]
     :[["Experiencia","recuperación"],["Reflexión","comprensión"],["Conceptualización","análisis"],["Aplicación","utilización del conocimiento"]];
@@ -39,7 +39,15 @@ async function generarSesion(sesion, subnivel, asignatura, grado, secuencia){
   const neeStr=sesion.nee?.length?sesion.nee.map(n=>`Estudiante con ${n.tipo} (${n.adaptacion}${n.adaptacion==='Adaptación curricular'?`, nivel cognitivo equivalente a ${n.nivel_cognitivo}`:''})`).join("; "):"ninguno";
   const tema=sesion.tema||sesion.destreza.substring(0,50);
 
-  const prompt=`Eres PLANIA, IA especializada en planificación curricular ecuatoriana con dominio en ${secuencia}, DUA y NEE.
+  // Instrucción de idioma (solo aplica cuando asignatura=Inglés)
+  let idiomaInstruccion="";
+  if(idioma==="bilingual"||idioma==="bilingue"){
+    idiomaInstruccion="\nIDIOMA: Genera TODO el contenido de las etapas (nombre, actividad, representacion, accion, implicacion, insercion) BILINGÜE: primero en español, luego en inglés entre paréntesis. Ejemplo: 'Observar imágenes (Observe images). Los estudiantes identifican... (Students identify...)'";
+  }else if(idioma==="english"||idioma==="ingles"){
+    idiomaInstruccion="\nIDIOMA: Genera TODO el contenido de las etapas (nombre, actividad, representacion, accion, implicacion, insercion) ÚNICAMENTE EN INGLÉS. El tema, objetivo, ejes_transversales, recursos, tecnica, instrumento y rubrica también en inglés.";
+  }
+
+  const prompt=`Eres PLANIA, IA especializada en planificación curricular ecuatoriana con dominio en ${secuencia}, DUA y NEE.${idiomaInstruccion}
 
 Genera planificación COMPLETA para esta sesión:
 - Subnivel: ${subnivel}
@@ -126,7 +134,7 @@ exports.handler=async(event)=>{
     }
 
     // GENERAR PLANIFICACIÓN
-    const{email,subnivel,asignatura,grado,secuencia,sesiones}=body;
+    const{email,subnivel,asignatura,grado,secuencia,sesiones,idioma}=body;
     if(!email)return{statusCode:400,headers,body:JSON.stringify({error:"Email requerido"})};
     if(!OPENAI_KEY)return{statusCode:500,headers,body:JSON.stringify({error:"API key no configurada."})};
     if(!SUPABASE_SECRET)return{statusCode:500,headers,body:JSON.stringify({error:"Supabase no configurado."})};
@@ -140,7 +148,7 @@ exports.handler=async(event)=>{
     // Generar todas las sesiones
     const resultados=[];
     for(const sesion of sesiones){
-      const plan=await generarSesion(sesion,subnivel,asignatura,grado,secuencia);
+      const plan=await generarSesion(sesion,subnivel,asignatura,grado,secuencia,idioma);
       resultados.push({sesion:sesion.numero,plan});
     }
 
